@@ -18,19 +18,15 @@ import java.util.Locale;
 public class RegistrationPageBurger {
     private WebDriver driver;
     private static Faker faker = new Faker(new Locale("en"));
-    private String fakerName = faker.name().fullName();
-    private String fakerEmail = faker.name().firstName() + "@mail.ru";
-    private String fakerPassword = faker.numerify("#######");
-
-    private By account = By.xpath(".//nav[@class='AppHeader_header__nav__g5hnF']/a");
-    private By register = By.className("Auth_link__1fOlj");
+    private By account = By.xpath(".//a[@href='/account']");
+    private By register = By.xpath(".//a[@href='/register']");
 
     private By name = By.xpath(".//form[@class='Auth_form__3qKeq mb-20']/fieldset[1]//input");
     private By email = By.xpath(".//form[@class='Auth_form__3qKeq mb-20']/fieldset[2]//input");
     private By password = By.xpath(".//form[@class='Auth_form__3qKeq mb-20']/fieldset[3]//input");
     private By registration = By.xpath(".//form[@class='Auth_form__3qKeq mb-20']/button");
 
-    private By registrationOk = By.className("Auth_login__3hAey");
+    private By registrationOk = By.xpath(".//div[@class='Auth_login__3hAey']//button");
     private By error = By.cssSelector(".input__error.text_type_main-default");
 
 
@@ -38,28 +34,39 @@ public class RegistrationPageBurger {
         this.driver = driver;
     }
 
-    @Step("Create new default user")
-    public void sendInfoForSuccessfulRegistration() {
+    @Step("Send info to create new default user")
+    public void sendInfoForNewDefaultUser() {
         driver.findElement(account).click();
         driver.findElement(register).click();
-        driver.findElement(name).sendKeys(fakerName);
-        driver.findElement(email).sendKeys(fakerEmail);
-        driver.findElement(password).sendKeys(fakerPassword);
+        driver.findElement(name).sendKeys(faker.name().fullName());
+        driver.findElement(email).sendKeys(faker.name().firstName() + faker.numerify("###") + "@mail.ru");
+        driver.findElement(password).sendKeys(faker.numerify("#######"));
         driver.findElement(registration).click();
     }
 
+    @Step("Send info to successful registration")
+    public void sendInfoForSuccessfulRegistration() {
+        driver.findElement(account).click();
+        driver.findElement(register).click();
+        driver.findElement(name).sendKeys(RandomInfo.RANDOM_NAME);
+        driver.findElement(email).sendKeys(RandomInfo.RANDOM_EMAIL);
+        driver.findElement(password).sendKeys(RandomInfo.RANDOM_PASSWORD);
+        driver.findElement(registration).click();
+    }
+
+
     @Step("Massage for success registration")
     public String getTextInfoSuccessfullyRegistration() {
-        return new WebDriverWait(driver, Duration.ofSeconds(5))
+        return new WebDriverWait(driver, Duration.ofSeconds(10))
                 .until(driver -> driver.findElement(registrationOk)).getText();
     }
 
-    @Step("Create new user to error password")
+    @Step("Send info to create new user with error password")
     public void sendInfoForErrorRegistration() {
         driver.findElement(account).click();
         driver.findElement(register).click();
         driver.findElement(name).sendKeys(faker.name().fullName());
-        driver.findElement(email).sendKeys(faker.name().firstName() + "@mail.ru");
+        driver.findElement(email).sendKeys(faker.name().firstName() + faker.numerify("###") + "@mail.ru");
         driver.findElement(password).sendKeys(faker.numerify("#####"));
         driver.findElement(registration).click();
     }
